@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Will You Be My Valentine Aarati</title>
+<style>
+  body {
+    background: #ffe6e6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    padding: 50px 20px;
+    color: #b22222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+  }
+
+  #message {
+    font-size: 1.3em;
+    margin-bottom: 40px;
+    min-height: 60px;
+  }
+
+  .buttons {
+    margin-bottom: 40px;
+    position: relative;
+    height: 70px; /* reserve space so moving noBtn stays visible */
+  }
+
+  button {
+    background: #b22222;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.3em;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  button:hover {
+    background: #800000;
+  }
+
+  #yesBtn.fullWidth {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px 0;
+    font-size: 2em;
+    margin: 20px auto;
+  }
+
+  #yesBtn.huge {
+    width: 100%;
+    max-width: 500px;
+    padding: 30px 0;
+    font-size: 2.8em;
+    margin: 20px auto;
+  }
+
+  #noBtn.moving {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  #finalMessage {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: #d62828;
+    display: none;
+  }
+
+  /* Smile message inside cameraSection */
+  #smileMessage {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: #d62828;
+    display: none;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* After picture taken message */
+  #afterCaptureMessage {
+    font-size: 1.7em;
+    margin-top: 20px;
+    color: #b22222;
+    display: none;
+    font-weight: 700;
+  }
+
+  /* Camera section fixed and centered, always visible */
+  #cameraSection {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    flex-direction: column;
+    align-items: center;
+    background: #fff0f0;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(178, 34, 34, 0.4);
+    z-index: 1000;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow: auto;
+  }
+
+  video {
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 300px;
+    margin-bottom: 20px;
+  }
+
+  #captureBtn {
+    background: #b22222;
+    padding: 12px 25px;
+    font-size: 1.3em;
+    border-radius: 30px;
+    cursor: pointer;
+    color: white;
+    border: none;
+    transition: background 0.3s ease;
+  }
+
+  #captureBtn:hover {
+    background: #800000;
+  }
+
+  #downloadLink {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #b22222;
+    text-decoration: none;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1 id="mainQuestion">Hey Aarati, will you be my Valentine?</h1>
+<div id="message">💖</div>
+
+<div class="buttons">
+  <button id="yesBtn">Yes</button>
+  <button id="noBtn">No</button>
+</div>
+
+<div id="finalMessage"></div>
+
+<!-- Camera Section -->
+<div id="cameraSection">
+  <div id="smileMessage">I love you so much, Aarati! Please send me your smile! ❤️</div>
+  <video id="video" autoplay playsinline></video>
+  <button id="captureBtn">Take Picture</button>
+  <a id="downloadLink" download="aarati_smile.png">Download your smile 😊</a>
+  <div id="afterCaptureMessage">I love you, chuppa! 🤫❤️</div>
+</div>
+
+<script>
+  const messages = [
+    "Are you sure? Saying yes would make me the happiest in the world! 💕",
+    "Pretty please, Aarati! I promise to fill your days with laughter and love! 😘",
+    "I’ll bake your favorite cake and sing your favorite song if you say yes! 🎂🎶",
+    "Your smile is my sunshine—let me see it every day! ☀️❤️",
+    "Aarati, you’re the sweetest thing in my life—say yes and make it sweeter! 🍬😊",
+    "Say yes and let’s make beautiful memories that last forever! 💫💖"
+  ];
+
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const messageDiv = document.getElementById('message');
+  const finalMessage = document.getElementById('finalMessage');
+  const smileMessage = document.getElementById('smileMessage');
+  const afterCaptureMessage = document.getElementById('afterCaptureMessage');
+  const cameraSection = document.getElementById('cameraSection');
+  const video = document.getElementById('video');
+  const captureBtn = document.getElementById('captureBtn');
+  const downloadLink = document.getElementById('downloadLink');
+  const mainQuestion = document.getElementById('mainQuestion');
+
+  let noCount = 0;
+
+  noBtn.addEventListener('click', () => {
+    if (noCount < messages.length) {
+      messageDiv.textContent = messages[noCount];
+    } else {
+      messageDiv.textContent = "Pretty please, Aarati! I’m here waiting with all my heart! 💓";
+    }
+
+    // Increase yes button size gradually
+    const basePadding = 15;
+    const baseFontSize = 1.3;
+    const scale = 1 + noCount * 0.2; // Increase 20% each no
+
+    yesBtn.style.padding = `${basePadding * scale}px ${40 * scale}px`;
+    yesBtn.style.fontSize = `${baseFontSize * scale}em`;
+
+    // At 3rd No or more, yes button full width
+    if (noCount >= 3) {
+      yesBtn.classList.add('fullWidth');
+    }
+
+    // At 5th No, make yes button HUGE
+    if (noCount === 4) {
+      yesBtn.classList.add('huge');
+    }
+
+    // At 6th No, make no button move and unclickable
+    if (noCount === 5) {
+      noBtn.classList.add('moving');
+      noBtn.style.pointerEvents = 'none';
+      moveNoButtonRandomly();
+    }
+
+    // For 6th and 7th No, scale the whole interface only if camera not shown
+    if ((noCount === 5 || noCount === 6) && cameraSection.style.display === 'none') {
+      const bodyScale = 1 + (noCount - 4) * 0.4; // scale 1.4 then 1.8
+      document.body.style.transform = `scale(${bodyScale})`;
+    }
+
+    noCount++;
+  });
+
+  // Move the No button randomly inside the buttons container
+  function moveNoButtonRandomly() {
+    const container = document.querySelector('.buttons');
+    const maxLeft = container.clientWidth - noBtn.offsetWidth;
+    const maxTop = container.clientHeight - noBtn.offsetHeight;
+
+    function move() {
+      const left = Math.random() * maxLeft;
+      const top = Math.random() * maxTop;
+      noBtn.style.left = `${left}px`;
+      noBtn.style.top = `${top}px`;
+    }
+
+    // Move every 600ms to keep it playful
+    move();
+    const interval = setInterval(move, 600);
+
+    // Store interval so we can clear if needed later
+    noBtn._moveInterval = interval;
+  }
+
+  yesBtn.addEventListener('click', () => {
+    // Stop no button moving if active
+    if (noBtn._moveInterval) {
+      clearInterval(noBtn._moveInterval);
+      noBtn.style.left = '0';
+      noBtn.style.top = '0';
+    }
+
+    // Hide buttons and message area & main question
+    yesBtn.style.display = 'none';
+    noBtn.style.display = 'none';
+    messageDiv.style.display = 'none';
+    mainQuestion.style.display = 'none';
+
+    // Show final love message
+    // finalMessage.textContent = "I love you so much, Aarati! Please send me your smile! ❤️";
+    // finalMessage.style.display = 'block';
+
+    // Show smile message inside camera section
+    smileMessage.style.display = 'block';
+
+    cameraSection.style.display = 'flex';
+
+    // Reset any scaling so camera shows normally
+    document.body.style.transform = 'none';
+
+    startCamera();
+  });
+
+  function startCamera() {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(err => {
+          smileMessage.textContent = "Oops! Can't access the camera. Please allow camera access.";
+          cameraSection.style.display = 'none';
+          console.error("Camera error:", err);
+        });
+    } else {
+      smileMessage.textContent = "Sorry, your browser doesn't support camera access.";
+      cameraSection.style.display = 'none';
+    }
+  }
+
+  captureBtn.addEventListener('click', () => {
+    // Create a canvas to capture the image from video
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convert canvas to data URL (PNG)
+    const dataURL = canvas.toDataURL('image/png');
+
+    // Stop the video stream
+    const stream = video.srcObject;
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    // Hide video and capture button
+    video.style.display = 'none';
+    captureBtn.style.display = 'none';
+
+    // Show download link
+    downloadLink.href = dataURL;
+    downloadLink.style.display = 'inline-block';
+
+    // Show after capture love message
+    afterCaptureMessage.style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
